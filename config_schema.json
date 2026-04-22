@@ -1,0 +1,352 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "rules": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "disease_relevant_transcript": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "nmd_threshold": {
+                        "type": "integer"
+                    },
+                    "pos_last_known_ptc": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            }
+        },
+        "prediction_tool_threshold" :{
+            "properties":{
+                "pathogenicity_prediction": {
+                    "properties": {
+                        "name" : {
+                            "type" : "string"
+                        },
+                        "benign":{
+                            "properties" : {
+                                "direction" : {
+                                    "type" : "string"
+                                },
+                                "supporting" : {
+                                    "type" :  "number"
+                                },
+                                "moderate" : {
+                                    "type" :  "number"
+                                },
+                                "strong" : {
+                                    "type" :  "number"
+                                },
+                                "very_strong" : {
+                                    "type" :  "number"
+                                }
+                            },
+                            "required" : ["direction"]
+                        },
+                        "pathogenic":{
+                            "properties" : {
+                                "direction" : {
+                                    "type" : "string"
+                                },
+                                "supporting" : {
+                                    "type" :  "number"
+                                },
+                                "moderate" : {
+                                    "type" :  "number"
+                                },
+                                "strong" : {
+                                    "type" :  "number"
+                                },
+                                "very_strong" : {
+                                    "type" :  "number"
+                                }
+                            },
+                            "required" : ["direction"]
+                        }
+                    },
+                    "required":
+                    ["name", "benign", "pathogenic"]
+                },
+                "splicing_prediction" :{
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "benign":{
+                            "properties" : {
+                                "direction" : {
+                                    "type" : "string"
+                                },
+                                "supporting" : {
+                                    "type" :  "number"
+                                },
+                                "moderate" : {
+                                    "type" :  "number"
+                                },
+                                "strong" : {
+                                    "type" :  "number"
+                                },
+                                "very_strong" : {
+                                    "type" :  "number"
+                                }
+                            },
+                            "required" : ["direction"]
+                        },
+                        "pathogenic":{
+                            "properties" : {
+                                "direction" : {
+                                    "type" : "string"
+                                },
+                                "supporting" : {
+                                    "type" :  "number"
+                                },
+                                "moderate" : {
+                                    "type" :  "number"
+                                },
+                                "strong" : {
+                                    "type" :  "number"
+                                },
+                                "very_strong" : {
+                                    "type" :  "number"
+                                }
+                            },
+                            "required" : ["direction"]
+                        }
+                    },
+                    "required":
+                    ["name", "benign", "pathogenic"]
+                }
+            }
+        },
+        "likelihood_thresholds": {
+            "properties": {
+                "benign": {
+                    "properties": {
+                        "direction": {
+                            "type": "string"
+                        },
+                        "supproting": {
+                            "type": "number"
+                        },
+                        "moderate": {
+                            "type": "number"
+                        },
+                        "strong": {
+                            "type": "number"
+                        },
+                        "very_strong": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "pathogenic": {
+                    "properties": {
+                        "direction": {
+                            "type": "string"
+                        },
+                        "supproting": {
+                            "type": "number"
+                        },
+                        "moderate": {
+                            "type": "number"
+                        },
+                        "strong": {
+                            "type": "number"
+                        },
+                        "very_strong": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "allele_frequency_threshold" :{
+            "properties":{
+                "threshold_ba1": {
+                    "type": "number"
+                },
+                "threshold_ba1_absolute": {
+                    "type": "integer"
+                },
+                "threshold_bs1": {
+                    "type": "number"
+                },
+                "threshold_bs1_absolute": {
+                    "type": "integer"
+                },
+                "threshold_bs1_supporting": {
+                    "type": "number"
+                },
+                "threshold_bs2": {
+                    "type": "number"
+                },
+                "threshold_pm2": {
+                    "type": "integer"
+                }
+            }
+        },
+        "functional_thresholds": {
+            "properties": {
+                "threshold_diff_len_prot_percent": {
+                    "type": "number"
+                }
+            }
+        },
+        "annotation_files" :{
+            "properties":{
+                "root": {
+                    "type": "string"
+                },
+                "clinvar" :{
+                    "properties" : {
+                        "root": {
+                            "type": "string"
+                        },
+                        "clinvar_snv": {
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root", "clinvar_snv"]
+                },
+                "uniprot":{
+                    "properties" :{
+                        "root": {
+                            "type": "string"
+                        },
+                        "rep": {
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root", "rep"]
+                },
+                "critical_regions":{
+                    "properties" :{
+                        "root": {
+                            "type": "string"
+                        },
+                        "critical_region": {
+                            "type": "string"
+                        },
+                        "disease_irrelevant_exons":{
+                            "type": "string"
+                        },
+                        "hotspot_region":{
+                            "type": "string"
+                        },
+                        "coldspot_region":{
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root"]
+                },
+                "splice_site_table":{
+                    "properties" :{
+                        "root": {
+                            "type": "string"
+                        },
+                        "file": {
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root", "file"]
+                },
+                "functional_regions":{
+                    "properties" :{
+                        "root": {
+                            "type": "string"
+                        },
+                        "functional_assay": {
+                            "type": "string"
+                        },
+                        "hotspot": {
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root"]
+                },
+                "uniprot_domains":{
+                    "properties" :{
+                        "root": {
+                            "type": "string"
+                        },
+                        "domains": {
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root"]
+                },
+                "splicevardb":{
+                    "properties" :{
+                        "root": {
+                            "type": "string"
+                        },
+                        "splicevardb_file": {
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root", "splicevardb_file"]
+                },
+                "functional_evidence_db":{
+                    "properties" :{
+                        "root": {
+                            "type": "string"
+                        },
+                        "functional_evidence_db_file": {
+                            "type": "string"
+                        }
+                    },
+                    "required" :["root", "functional_evidence_db_file"]
+                }
+            },
+            "required" : ["root"]
+        },
+        "gene_specific_config": {
+            "properties":{
+                "root": {
+                    "type": "string"
+                },
+                "atm": {
+                    "type" : "string"
+                },
+                "brca1": {
+                    "type": "string"
+                },
+                "brca2": {
+                    "type": "string"
+                },
+                "cdh1" : {
+                    "type" : "string"
+                },
+                "palb2" :{
+                    "type": "string"
+                },
+                "pten" :{
+                    "type": "string"
+                },
+                "tp53" :{
+                    "type": "string"
+                }
+            },
+            "required" : ["root"]
+        }
+    },
+    "required" :[
+        "name",
+        "rules"
+    ]
+}

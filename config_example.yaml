@@ -1,0 +1,96 @@
+# ACMG Variant Classification Configuration
+# Example configuration with literature-based rules enabled
+
+name: "example_config"
+rules:
+  # PS3 combined - uses SpliceVarDB, functional_evidence.db, and literature retrieval
+  - "ps3_combined"
+  # Literature-based rules (use variant.variant_literature)
+  - "ps2"    # de novo variants
+  - "ps4"    # case-control prevalence (multiple probands)
+  - "pm3"    # biallelic variants
+  - "bp2"    # benign trans configuration
+  # Other rules
+  - "pvs1"
+  - "ps1_protein"
+  - "ps1_splicing"
+  - "pm1"
+  - "pm2"
+  - "pm4"
+  - "pm5_protein"
+  - "pp1"
+  - "pp2"
+  - "pp3_protein"
+  - "pp3_splicing"
+  - "ba1"
+  - "bs1"
+  - "bs2"
+  - "bs3"
+  - "bs4"
+  - "bp1"
+  - "bp3"
+  - "bp4_protein"
+  - "bp7"
+  - "bp6_clingen"
+
+# Prediction tool thresholds
+# 简化版：仅使用 REVEL 和 SpliceAI
+prediction_tool_threshold:
+  # ========== Missense 变异预测 ==========
+  # REVEL (ensemble missense pathogenicity predictor)
+  # 分数范围: 0-1, 越高越可能有害
+  revel:
+    name: "REVEL"
+    benign:
+      direction: "less_than"
+      supporting: 0.391    # ≤0.391 良性 → BP4
+    pathogenic:
+      direction: "greater_than"
+      supporting: 0.644    # ≥0.644 有害 - Supporting (1分)
+      moderate: 0.773       # ≥0.773 有害 - Moderate (2分)
+      strong: 0.932         # ≥0.932 有害 - Strong (4分)
+      # PP3 + PS3 合计最高 4 分
+
+  # ========== Splicing/Intronic 变异预测 ==========
+  # SpliceAI (剪接预测)
+  # 分数范围: 0-1, 越高越可能影响剪接
+  spliceai:
+    name: "SpliceAI"
+    benign:
+      direction: "less_than"
+      supporting: 0.1       # ≤0.1 良性 → BP4
+    pathogenic:
+      direction: "greater_than"
+      supporting: 0.2       # ≥0.2 有害 → PP3
+
+# Annotation files - update paths as needed
+annotation_files:
+  root: "/path/to/data"
+  clinvar:
+    root: "/path/to/data"
+    clinvar_snv: "clinvar_snv.txt"
+  uniprot:
+    root: "/path/to/data"
+    rep: "uniprot_representation.txt"
+  critical_regions:
+    root: "/path/to/data"
+    critical_region: "critical_regions.bed"
+    disease_irrelevant_exons: "disease_irrelevant_exons.txt"
+    hotspot_region: "hotspot_regions.bed"
+    coldspot_region: "coldspot_regions.bed"
+  splice_site_table:
+    root: "/path/to/data"
+    file: "splice_site_classifications.txt"
+  functional_regions:
+    root: "/path/to/data"
+    functional_assay: "functional_assay_regions.bed"
+    hotspot: "hotspot_regions.bed"
+  uniprot_domains:
+    root: "/path/to/data"
+    domains: "uniprot_domains.bed"
+  splicevardb:
+    root: "/path/to/data"
+    splicevardb_file: "splicevardb_with_pmid.csv"
+  functional_evidence_db:
+    root: "/path/to/data"
+    functional_evidence_db_file: "functional_evidence.db"
