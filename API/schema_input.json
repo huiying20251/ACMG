@@ -1,0 +1,150 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+        "chr": {
+            "type": "string",
+            "description": "Chromosome (with or without 'chr' prefix)"
+        },
+        "pos": {
+            "type": "integer",
+            "description": "Genomic position"
+        },
+        "ref": {
+            "type": "string",
+            "description": "Reference allele"
+        },
+        "alt": {
+            "type": "string",
+            "description": "Alternate allele"
+        },
+        "variant_type": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Variant type(s) from VEP consequences"
+        },
+        "gene": {
+            "type": "string",
+            "description": "Gene symbol"
+        },
+        "hgvs_c": {
+            "type": "string",
+            "description": "HGVS cDNA notation"
+        },
+        "hgvs_p": {
+            "type": "string",
+            "description": "HGVS protein notation"
+        },
+        "rs_id": {
+            "type": "string",
+            "description": "dbSNP rsID"
+        },
+        "mane_select": {
+            "type": "string",
+            "description": "MANE select transcript"
+        },
+        "transcript": {
+            "type": "string",
+            "description": "Primary transcript"
+        },
+        "refseq_transcript": {
+            "type": "string",
+            "description": "RefSeq transcript"
+        },
+        "variant_effect": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "transcript": {"type": "string"},
+                    "hgvs_c": {"type": "string"},
+                    "hgvs_p": {"type": "string"},
+                    "variant_type": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "exon": {"type": ["integer", "null"]},
+                    "intron": {"type": ["integer", "null"]}
+                }
+            },
+            "description": "Transcript-level variant effects"
+        },
+        "gnomAD": {
+            "type": "object",
+            "properties": {
+                "AF": {"type": "number"},
+                "AC": {"type": "integer"},
+                "popmax_AF": {"type": "number"},
+                "popmax_AC": {"type": "integer"},
+                "subpopulation": {"type": "string"},
+                "subpopulation_AF": {"type": "number"},
+                "subpopulation_AC": {"type": "integer"},
+                "missense_zscore": {"type": ["number", "null"]}
+            },
+            "description": "gnomAD allele frequency data"
+        },
+        "pathogenicity_prediction_tools": {
+            "type": "object",
+            "description": "Pathogenicity predictions (REVEL, SIFT, PolyPhen)"
+        },
+        "splicing_prediction_tools": {
+            "type": "object",
+            "description": "Splicing predictions (SpliceAI)"
+        },
+        "cancer_hotspots": {
+            "type": "object",
+            "description": "Cancer Hotspots data"
+        },
+        "functional_data": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "pathogenic": {"type": "number"},
+                    "benign": {"type": "number"}
+                }
+            },
+            "description": "Functional assay data"
+        },
+        "mRNA_analysis": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "minigene": {"type": "string"},
+                    "patient_rna": {"type": "string"},
+                    "allelic": {"type": "string"},
+                    "quantification": {"type": ["number", "null"]}
+                }
+            },
+            "description": "mRNA analysis data"
+        },
+        "FLOSSIES": {
+            "type": "object",
+            "properties": {
+                "AFR": {"type": "number"},
+                "EUR": {"type": "number"}
+            },
+            "description": "FLOSSIES database data"
+        },
+        "multifactorial_log-likelihood": {
+            "type": "number",
+            "description": "Multifactorial log-likelihood"
+        },
+        "prior": {
+            "type": "number",
+            "description": "Prior probability"
+        },
+        "co-occurrence": {
+            "type": "number",
+            "description": "Co-occurrence likelihood"
+        },
+        "segregation": {
+            "type": "number",
+            "description": "Segregation likelihood"
+        }
+    },
+    "required": ["chr", "pos", "ref", "alt", "variant_type", "gene"]
+}

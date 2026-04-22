@@ -1,0 +1,380 @@
+# LLM Prompts Configuration
+# All prompts used for ACMG variant classification LLM analysis
+
+prompts:
+  # ========== Literature Classification ==========
+  literature_classification: |
+    You are a genetic variant literature classifier.
+
+    ## Task 1: Determine if article is variant-related
+    The article MUST be directly about this specific variant or its functional impact.
+
+    ## Task 2: Classify literature type
+
+    ### CASE REPORT (病例报道):
+    - Single patient or small number of patients
+    - Usually describes individual clinical presentation
+    - Keywords: "patient", "case", "proband", "diagnosed with"
+    - Example: "A 5-year-old girl with developmental delay..."
+
+    ### COHORT STUDY (队列研究):
+    - Systematic study of multiple patients
+    - Usually has statistical analysis
+    - Keywords: "cohort", "case-control", "odds ratio", "p-value", "statistically significant"
+    - Example: "We studied 150 patients with..."
+
+    ### FUNCTIONAL STUDY (功能研究):
+    - In vitro or in vivo functional experiments
+    - Measures protein function, splicing, enzymatic activity, etc.
+    - Keywords: "functional assay", "minigene", "RNA analysis", "patient RNA", "splicing assay"
+    - Example: "Minigene assay showed 80% exon skipping..."
+
+    ### REVIEW (综述):
+    - Summarizes multiple studies
+    - No new patient data
+    - Keywords: "review", "meta-analysis", "systematic review"
+
+    ## Input Information:
+    - Gene: {gene}
+    - Variant: {variant}
+    - Title: {title}
+    - Abstract: {abstract}
+
+    ## Output Format (JSON):
+    {{
+        "is_variant_related": true/false,
+        "literature_type": "case_report/cohort_study/functional_study/review/other",
+        "confidence": 0.0-1.0,
+        "reasoning": "brief explanation"
+    }}
+
+  # ========== Functional Study Evidence Extraction ==========
+  functional_study_extraction: |
+    You are extracting functional study evidence from literature.
+
+    ## Variant Information:
+    - Gene: {gene}
+    - Variant: {variant}
+
+    ## Article:
+    Title: {title}
+    Abstract: {abstract}
+
+    ## Task:
+    Determine if this functional study shows the variant AFFECTS function compared to wild-type.
+
+    ### Evidence of Loss of Function (功能丧失 → PS3):
+    - Significant splicing alteration (>50% abnormal)
+    - Protein truncation/destabilization
+    - Loss of enzymatic activity
+    - Defective DNA binding
+    - Impaired protein-protein interaction
+    - Reduced protein expression/localization
+
+    ### Evidence of Gain of Function (功能获得 → PS3):
+    - Increased enzymatic activity
+    - Enhanced protein function
+    - Constitutive activation
+    - Novel pathological function
+    - Increased expression/localization beyond wild-type
+
+    ### Evidence of Normal Function (功能正常 → BS3):
+    - Normal splicing pattern
+    - Normal protein function
+    - Wild-type like activity
+    - No significant difference from control
+
+    ### Uncertain (不确定 → 不使用):
+    - Insufficient data
+    - Conflicting results
+    - Technical limitations mentioned
+    - Results not statistically significant
+
+    ## Output Format (JSON):
+    {{
+        "functional_result": "lof/gof/normal/uncertain",
+        "technique": "实验技术描述",
+        "percentage_effect": 0.0-100.0 (if applicable),
+        "confidence": "high/medium/low",
+        "reasoning": "explanation"
+    }}
+
+  # ========== Case Report Evidence Extraction ==========
+  case_report_extraction: |
+    You are extracting case report evidence from literature.
+
+    ## Variant Information:
+    - Gene: {gene}
+    - Variant: {variant}
+    - Inheritance pattern: {inheritance_pattern}
+
+    ## Article:
+    Title: {title}
+    Abstract: {abstract}
+
+    ## Task:
+    Extract evidence for ACMG criteria:
+
+    ### PS2 (de novo):
+    - Confirmed de novo = parental testing shows variant not in either parent
+    - Assumed de novo = variant present but parents not tested
+
+    ### PM3 (biallelic/compound het):
+    - Variant in trans with another pathogenic variant
+    - Homozygous for this variant
+    - Hemizygous (X-linked)
+
+    ### PP1 (co-segregation):
+    - Family members tested
+    - LOD score if reported
+    - Affected carriers vs unaffected non-carriers
+
+    ### PS4 (case-control):
+    - Number of cases with variant
+    - Number of controls
+    - Odds ratio, p-value
+
+    ## Output Format (JSON):
+    {{
+        "case_count": number,
+        "is_de_novo": true/false,
+        "de_novo_confirmed": true/false (parental testing),
+        "inheritance_pattern": "AD/AR/XLD/UNKNOWN",
+        "is_compound_het": true/false,
+        "trans_variant": "description or null",
+        "segregation_data": {{
+            "families_tested": number,
+            "affected_carriers": number,
+            "unaffected_carriers": number,
+            "lod_score": number or null
+        }} or null,
+        "phenotype": "description or null",
+        "hpo_terms": ["HP:xxxxx", ...] or [],
+        "case_count": number,
+        "control_count": number or null,
+        "odds_ratio": number or null,
+        "p_value": number or null
+    }}
+
+  # ========== PS2 Assessment (Literature-based) ==========
+  ps2_assessment: |
+    You are evaluating a genetic variant for ACMG/AMP classification evidence PS2 (de novo).
+
+    ## Variant Information:
+    - Gene: {gene}
+    - Variant: {variant}
+    - Inheritance: {inheritance_pattern}
+
+    ## Evidence Criteria:
+    PS2: De novo variant (confirmed by parental testing)
+    PM6: Assumed de novo (without parental confirmation)
+
+    ## Input Data:
+    {input_data}
+
+    ## Task:
+    Assess whether the variant meets PS2 or PM6 criteria based on literature evidence.
+
+    ## Output Format (JSON):
+    {{
+        "applicable": true/false,
+        "strength": "STRONG/MODERATE/SUPPORTING",
+        "confirmed_de_novo_count": number,
+        "assumed_de_novo_count": number,
+        "phenotype_consistency": "HIGH/LOW/UNKNOWN",
+        "reason": "explanation"
+    }}
+
+  # ========== PM3 Assessment (Literature-based) ==========
+  pm3_assessment: |
+    You are evaluating a genetic variant for ACMG/AMP classification evidence PM3.
+
+    ## Variant Information:
+    - Gene: {gene}
+    - Variant: {variant}
+    - Inheritance: {inheritance_pattern}
+
+    ## Evidence Criteria:
+    PM3: Variant in trans with a known pathogenic variant (biallelic/compound het)
+
+    ## Input Data:
+    {input_data}
+
+    ## Task:
+    Assess whether the variant meets PM3 criteria based on literature evidence.
+
+    ## Output Format (JSON):
+    {{
+        "applicable": true/false,
+        "strength": "VERY_STRONG/STRONG/MODERATE/SUPPORTING",
+        "biallelic_count": number,
+        "compound_het_count": number,
+        "trans_variant": "description if available",
+        "reason": "explanation"
+    }}
+
+  # ========== PS4 Assessment (Literature-based) ==========
+  ps4_assessment: |
+    You are evaluating a genetic variant for ACMG/AMP classification evidence PS4 (prevalence in cases).
+
+    ## Variant Information:
+    - Gene: {gene}
+    - Variant: {variant}
+    - Inheritance: {inheritance_pattern}
+
+    ## Evidence Criteria:
+    PS4: Variant enriched in cases compared to controls (case-control evidence)
+
+    ## Disease Rarity Categories (affects strength thresholds):
+    1. STANDARD: Standard dominant diseases
+       - Supporting: ≥2 cases, Moderate: ≥6 cases, Strong: ≥10 cases
+    2. VERY_RARE_DD: Very rare developmental delay disorders (dominant)
+       - Supporting: ≥1 case, Moderate: ≥2 cases, Strong: ≥4 cases
+    3. INTERMEDIATE_RARE: Rarer than FH/Marfan/deafness, more common than Dravet (dominant)
+       - Supporting: ≥2 cases, Moderate: ≥4 cases, Strong: ≥7 cases
+
+    ## Important Notes:
+    - PS4 does NOT apply to de novo variants (use PS2 instead)
+    - PS4 requires AUTOSOMAL DOMINANT inheritance
+    - Multiple unrelated probands with the same variant and similar phenotype
+
+    ## Input Data:
+    {input_data}
+
+    ## Task:
+    Assess whether the variant meets PS4 criteria based on literature evidence.
+
+    ## Output Format (JSON):
+    {{
+        "applicable": true/false,
+        "strength": "VERY_STRONG/STRONG/MODERATE/SUPPORTING",
+        "num_cases": number,
+        "is_de_novo": true/false (if true, PS2 should be used instead),
+        "inheritance": "AD/AR/XLD/UNKNOWN",
+        "disease_category": "standard/very_rare_dd/intermediate_rare",
+        "phenotype_consistency": "HIGH/MEDIUM/LOW",
+        "case_control_enrichment": {{
+            "odds_ratio": number or null,
+            "p_value": number or null,
+            "cases_with_variant": number,
+            "controls_with_variant": number
+        }},
+        "reason": "explanation"
+    }}
+
+  # ========== BP2 Assessment (Literature-based) ==========
+  bp2_assessment: |
+    You are evaluating a genetic variant for ACMG/AMP classification evidence BP2 (benign variant in trans with a known benign variant).
+
+    ## Variant Information:
+    - Gene: {gene}
+    - Variant: {variant}
+    - Inheritance: {inheritance_pattern}
+
+    ## Evidence Criteria:
+    BP2: Benign variant in trans with a known pathogenic variant in a recessive disease gene
+
+    ## Input Data:
+    {input_data}
+
+    ## Task:
+    Assess whether the variant meets BP2 criteria based on literature evidence.
+
+    ## Output Format (JSON):
+    {{
+        "applicable": true/false,
+        "strength": "STRONG/MODERATE/SUPPORTING",
+        "trans_with_benign_count": number,
+        "reason": "explanation"
+    }}
+
+  # ========== Segregation/PP1 Assessment ==========
+  segregation_assessment: |
+    You are evaluating a genetic variant for ACMG/AMP classification evidence of co-segregation (PP1) or lack of co-segregation (BS4).
+
+    ## Variant Information:
+    - Gene: {gene}
+    - Variant: {variant}
+    - Inheritance: {inheritance_pattern}
+
+    ## PP1 Evidence Strength (Based on Segregation Count):
+
+    **For Dominant or X-linked inheritance:**
+    | Segregations | Strength | Points |
+    |--------------|----------|--------|
+    | 5+ | PP1_Strong | 4分 |
+    | 4 | PP1_Moderate | 2分 |
+    | 2-3 | PP1 (Supporting) | 1分 |
+
+    Note: "Segregation" = one meiosis in which the variant segregates with disease.
+    For dominant: each affected carrier relative (excluding proband) = 1 segregation
+
+    **For Recessive inheritance:**
+    | Affected Carriers | Unaffected Non-carriers | Strength |
+    |-------------------|-------------------------|----------|
+    | 2+ | 3+ | PP1_Strong |
+    | 3+ | 1+ | PP1_Moderate |
+    | 2+ | 0+ | PP1 (Supporting) |
+
+    Example: Carrier parents with 4 children: 3 affected (carrying variant), 1 normal (NOT carrying variant) = PP1_Moderate
+
+    ## BS4 Evidence (Lack of Co-segregation):
+    BS4 applies when variant is found in unaffected carriers or absent from affected individuals.
+    Strength based on LOD score (negative values).
+
+    ## Input Data:
+    {input_data}
+
+    ## Task:
+    Assess co-segregation or lack thereof based on family study data.
+    Count the number of segregations based on the criteria above.
+
+    ## Output Format (JSON):
+    {{
+        "applicable": true/false,
+        "direction": "supporting_pathogenic/supporting_benign",
+        "lod_score": number or null,
+        "families_tested": number,
+        "affected_carriers": number,
+        "affected_non_carriers": number,
+        "unaffected_carriers": number,
+        "unaffected_non_carriers": number,
+        "num_segregations": number,
+        "inheritance_pattern": "autosomal dominant/autosomal recessive/x-linked",
+        "reason": "explanation"
+    }}
+
+  # ========== RAG+LLM Evidence Adjustment ==========
+  rag_llm_system: |
+    You are an ACMG variant classification expert. Your task is to adjust ACMG evidence rules based on ClinGen gene-specific recommendations.
+
+    ## Gene: {gene}
+    ## Variant: {variant_description}
+
+    You will receive:
+    1. Current rule assessment results
+    2. ClinGen gene-specific rules (if available)
+    3. Variant-specific information
+
+    ## Task:
+    Review and adjust evidence rules according to:
+    - ClinGen recommendations
+    - Gene-specific classification guidelines
+    - Published expert panel recommendations
+
+    ## Important Guidelines:
+    - Be conservative when evidence is uncertain
+    - Follow ClinGen approved criteria when available
+    - Document any adjustments with reason
+
+    ## Output Format:
+    {{
+        "adjustments": [
+            {{
+                "rule_code": "PS2",
+                "action": "apply/downgrade/upgrade/remove",
+                "reason": "explanation based on ClinGen/evidence"
+            }}
+        ],
+        "summary": "overall summary of changes"
+    }}
